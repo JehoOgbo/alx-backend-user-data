@@ -5,6 +5,8 @@ filter_datum
 from typing import List
 import re
 import logging
+import os
+import mysql.connector
 
 
 patterns = {
@@ -34,6 +36,26 @@ def get_logger() -> logging.Logger:
     stream_handler.setFormatter(formatter)
     logger.addHandler(stream_handler)
     return logger
+
+def get_db() -> mysql.connector.connection.MySQLConnection:
+    """ Return a connector to a secure database
+    """
+    USERNAME = os.getenv('PERSONAL_DATA_DB_USERNAME', 'root')
+    PASSWORD = os.getenv('PERSONAL_DATA_DB_PASSWORD', '')
+    HOST = os.getenv('PERSONAL_DATA_DB_HOST', 'localhost')
+    NAME = os.getenv('PERSONAL_DATA_DB_NAME')
+    if NAME is None:
+        return
+    try:
+        connection = mysql.connector.connect(
+                host=HOST,
+                user=USERNAME,
+                password=PASSWORD,
+                database=NAME
+                )
+        return connection
+    except Exception as e:
+        return None
 
 
 class RedactingFormatter(logging.Formatter):
