@@ -4,13 +4,14 @@ filter_datum
 """
 from typing import List
 import re
+import logging
 
 
 patterns = {
         'extract': lambda x, y: r'(?P<field>{})=[^{}]*'.format('|'.join(x), y),
         'replace': lambda x: r'\g<field>={}'.format(x)
         }
-# PII_FIELDS = ('name', 'email', 'phone', 'ssn', 'password')
+PII_FIELDS = ('name', 'email', 'phone', 'ssn', 'password')
 
 
 def filter_datum(
@@ -21,7 +22,18 @@ def filter_datum(
     extract, replace = (patterns['extract'], patterns['replace'])
     return re.sub(extract(fields, separator), replace(redaction), message)
 
-import logging
+def get_logger() -> logging.Logger:
+    """Only Log upto the INFO level
+     - The object returned must be named user_data
+    """
+    logger = logging.getLogger("user_data")
+    logger.setLevel(logging.INFO)
+    stream_handler = logging.StreamHandler(sys.stdout)
+
+    formatter = logging.Formatter(RedactingFormatter(PII_FIELDS))
+    stream_handler.setFormatter(formatter)
+    logger.addHandler(stream_handler)
+    return logger
 
 
 class RedactingFormatter(logging.Formatter):
