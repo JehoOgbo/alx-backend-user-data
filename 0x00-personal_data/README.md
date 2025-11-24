@@ -35,3 +35,85 @@ bob@dylan:~$
 ```
 
 Files: [filtered_logger.py](./filtered_logger.py)
+
+### Log Formatter
+Copy the following code into filtered_logger.py.
+
+```
+import logging
+
+
+class RedactingFormatter(logging.Formatter):
+    """ Redacting Formatter class
+        """
+
+    REDACTION = "***"
+    FORMAT = "[HOLBERTON] %(name)s %(levelname)s %(asctime)-15s: %(message)s"
+    SEPARATOR = ";"
+
+    def __init__(self):
+        super(RedactingFormatter, self).__init__(self.FORMAT)
+
+    def format(self, record: logging.LogRecord) -> str:
+        NotImplementedError
+```
+
+Update the class to accept a list of strings fields constructor argument.
+
+Implement the format method to filter values in incoming log records using filter_datum. Values for fields in fields should be filtered.
+
+DO NOT extrapolate FORMAT manually. The format method should be less than 5 lines long.
+
+```
+bob@dylan:~$ cat main.py
+#!/usr/bin/env python3
+"""
+Main file
+"""
+
+import logging
+import re
+
+RedactingFormatter = __import__('filtered_logger').RedactingFormatter
+
+message = "name=Bob;email=bob@dylan.com;ssn=000-123-0000;password=bobby2019;"
+log_record = logging.LogRecord("my_logger", logging.INFO, None, None, message, None, None)
+formatter = RedactingFormatter(fields=("email", "ssn", "password"))
+print(formatter.format(log_record))
+
+bob@dylan:~$
+bob@dylan:~$ ./main.py
+[HOLBERTON] my_logger INFO 2019-11-19 18:24:25,105: name=Bob; email=***; ssn=***; password=***;
+bob@dylan:~$
+```
+
+### Create Logger
+Use [user_data.csv](./user_data.csv) for this task
+
+Implement a get_logger function that takes no arguments and returns a logging.Logger object.
+
+The logger should be named "user_data" and only log up to logging.INFO level. It should not propagate messages to other loggers. It should have a StreamHandler with RedactingFormatter as formatter.
+
+Create a tuple PII_FIELDS constant at the root of the module containing the fields from user_data.csv that are considered PII. PII_FIELDS can contain only 5 fields - choose the right list of fields that can be considered as “important” PIIs or information that you must hide in your logs. Use it to parameterize the formatter.
+
+```
+bob@dylan:~$ cat main.py
+#!/usr/bin/env python3
+"""
+Main file
+"""
+
+import logging
+
+get_logger = __import__('filtered_logger').get_logger
+PII_FIELDS = __import__('filtered_logger').PII_FIELDS
+
+print(get_logger.__annotations__.get('return'))
+print("PII_FIELDS: {}".format(len(PII_FIELDS)))
+
+bob@dylan:~$
+bob@dylan:~$ ./main.py
+<class 'logging.Logger'>
+PII_FIELDS: 5
+bob@dylan:~$
+```
