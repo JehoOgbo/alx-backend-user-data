@@ -1,5 +1,8 @@
 # alx-backend-user-data
-Learn how to handle user data in backend
+Learn about and appreciate the handling of user-data in the backend with best practices and closer inspection of related concepts.
 
-### [0x00-personal_data](./0x00-personal_data]
-Understand logging and protection of user data for backend
+### [0x00-personal_data](./0x00-personal_data/)
+Understand the handling of personal data in the backend
+
+### [0x01-Basic_Authentication](./0x01-Basic_authentication/)
+Understand authentication concepts and look into basic authentication.

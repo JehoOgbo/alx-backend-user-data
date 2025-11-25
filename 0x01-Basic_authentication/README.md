@@ -200,7 +200,7 @@ Update the method def require_auth(self, path: str, excluded_paths: List[str]) -
 - Returns True if excluded_paths is None or empty
 - Returns False if path is in excluded_paths
 - You can assume excluded_paths contains string path always ending by a /
-- This method must be slash tolerant: path=/api/v1/status and path=/api/v1/status/ must be returned False if excluded_paths contains /api/v1/status/
+- This method must be slash tolerant: `path=/api/v1/status` and `path=/api/v1/status/` must be returned False if excluded_paths contains /api/v1/status/
 
 ```
 bob@dylan:~$ cat main_1.py
@@ -289,3 +289,47 @@ bob@dylan:~$ curl "http://0.0.0.0:5000/api/v1/users" -H "Authorization: Test"
 }
 bob@dylan:~$
 ```
+
+### 6. Basic Auth
+Create a class [BasicAuth](./api/v1/auth/basic_auth.py) that inherits from Auth. For the moment this class will be empty.
+
+Update [api/v1/app.py](./api/v1/app.py) for using BasicAuth class instead of Auth depending of the value of the environment variable AUTH_TYPE, If AUTH_TYPE is equal to basic_auth:
+
+- import BasicAuth from api.v1.auth.basic_auth
+- create an instance of BasicAuth and assign it to the variable auth
+
+Otherwise, keep the previous mechanism with auth an instance of Auth.
+
+In the first terminal:
+
+```
+bob@dylan:~$ API_HOST=0.0.0.0 API_PORT=5000 AUTH_TYPE=basic_auth python3 -m api.v1.app
+ * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
+....
+```
+
+In a second terminal:
+
+```
+bob@dylan:~$ curl "http://0.0.0.0:5000/api/v1/status"
+{
+  "status": "OK"
+}
+bob@dylan:~$
+bob@dylan:~$ curl "http://0.0.0.0:5000/api/v1/status/"
+{
+  "status": "OK"
+}
+bob@dylan:~$
+bob@dylan:~$ curl "http://0.0.0.0:5000/api/v1/users"
+{
+  "error": "Unauthorized"
+}
+bob@dylan:~$
+bob@dylan:~$ curl "http://0.0.0.0:5000/api/v1/users" -H "Authorization: Test"
+{
+  "error": "Forbidden"
+}
+bob@dylan:~$
+```
+
