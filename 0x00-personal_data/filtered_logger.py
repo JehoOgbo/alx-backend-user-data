@@ -7,6 +7,7 @@ import re
 import logging
 import os
 import mysql.connector
+import sys
 
 
 patterns = {
@@ -30,10 +31,10 @@ def get_logger() -> logging.Logger:
     """
     logger = logging.getLogger("user_data")
     logger.setLevel(logging.INFO)
-    stream_handler = logging.StreamHandler(sys.stdout)
+    stream_handler = logging.StreamHandler()
 
-    formatter = logging.Formatter(RedactingFormatter(PII_FIELDS))
-    stream_handler.setFormatter(formatter)
+    stream_handler.setFormatter(RedactingFormatter(PII_FIELDS))
+    logger.propagate = False
     logger.addHandler(stream_handler)
     return logger
 
@@ -57,6 +58,26 @@ def get_db() -> mysql.connector.connection.MySQLConnection:
     except Exception as e:
         return None
 
+def main() -> None:
+    fields = "name,email,phone,ssn,password,ip,last_login,user_agent"
+    columns = fields.split(',')
+    conn = get_db()
+    logger = get_logger()
+    query = "SELECT {} FROM users;".format(fields)
+
+    with conn.cursor() as cursor:
+        cursor.execute(query)
+        rows = cursor.fetchall()
+        for row in rows:
+            record = map(
+                    lambda x: '{}={}'.format(x[0], x[1]),
+                    zip(columns, row),
+                    )
+            msg = '{};'.format('; '.join(list(record)))
+            args = ("user_data", logging.INFO, None, None, msg, None, None)
+            log_record = logging.LogRecord(*args)
+            logger.handle(log_record)
+
 
 class RedactingFormatter(logging.Formatter):
     """ Redacting Formatter class
@@ -75,3 +96,7 @@ class RedactingFormatter(logging.Formatter):
         msg = super(RedactingFormatter, self).format(record)
         return filter_datum(self.fields, self.REDACTION, msg, self.SEPARATOR)
 
+
+
+if __name__ == '__main__':
+    main()
