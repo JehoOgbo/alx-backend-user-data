@@ -9,8 +9,15 @@ class Auth:
     """ Template for authentication systems
     """
     def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
-        """ returns False
+        """ Returns True if path is not in the list of paths excluded_paths
+        otherwise returns False
         """
+        if path is None or excluded_paths is None or excluded_paths == []:
+            return True
+        if path[-1] != '/':
+            path = path + '/'
+        if path not in excluded_paths:
+            return True
         return False
 
     def authorization_header(self, request=None) -> str:
