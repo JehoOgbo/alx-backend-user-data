@@ -132,6 +132,6 @@ class Base():
             for k, v in attributes.items():
                 if (getattr(obj, k) != v):
                     return False
-            return True
-        
+            return True 
+
         return list(filter(_search, DATA[s_class].values()))
