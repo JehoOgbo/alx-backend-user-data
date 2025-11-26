@@ -511,7 +511,7 @@ File: [api/v1/auth/basic_auth.py](./api/v1/auth/basic_auth.py)
 
 Now, you have all pieces for having a complete Basic authentication.
 
-Add the method def current_user(self, request=None) -> TypeVar('User') in the class BasicAuth that overloads Auth and retrieves the User instance for a request:
+Add the method `def current_user(self, request=None) -> TypeVar('User')` in the class BasicAuth that overloads Auth and retrieves the User instance for a request:
 
 - You must use authorization_header
 - You must use extract_base64_authorization_header
