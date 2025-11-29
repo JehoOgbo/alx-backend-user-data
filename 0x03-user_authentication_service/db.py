@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """DB module
 """
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, tuple_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import Session
+from sqlalchemy.exc import InvalidRequestError , NoResultFound
+# from sqlalchemy.orm.exc import NoResultFound
 
 from user import Base
 from user import User
+from typing import Dict
 
 
 class DB:
@@ -43,3 +46,15 @@ class DB:
             self.__session.rollback()
             new_user = None
         return new_user
+
+    def find_user_by(self, **kwargs: Dict) -> User:
+        """ Finds a user based on a set of filters
+        """
+        session = self._session
+        try:
+            user = session.query(User).filter_by(**kwargs).one()
+        except NoResultFound:
+            raise NoResultFound()
+        except InvalidRequestError:
+            raise InvalidRequestError()
+        return user
