@@ -64,11 +64,14 @@ class DB:
         """
         session = self._session
         dictionary = {"id": user_id}
-        user = self.find_user_by(**dictionary)
-        if user:
-            for key, value in kwargs.items():
-                attributes.set_attribute(user, key, value)
+        try:
+            user = self.find_user_by(**dictionary)
+            if user:
+                for key, value in kwargs.items():
+                    attributes.set_attribute(user, key, value)
 
-            session.commit()
-        else:
+                session.commit()
+            else:
+                return None
+        except Exception as e:
             return None

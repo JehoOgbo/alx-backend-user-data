@@ -219,11 +219,11 @@ b'$2b$12$eUDdeuBtrD41c8dXvzh95ehsWYCCAi4VH1JbESzgbgZT.eMMzi.G2'
 bob@dylan:~$
 ```
 
-auth.py
+File: [auth.py](./auth.py)
 
 ### Register User
 
-In this task, you will implement the Auth.register_user in the Auth class provided below:
+In this task, you will implement the `Auth.register_user` in the `Auth` class provided below:
 
 ```
 from db import DB
@@ -241,7 +241,7 @@ Note that `Auth._db` is a private property and should NEVER be used from outside
 
 `Auth.register_user` should take mandatory email and password string arguments and return a `User` object.
 
-If a user already exist with the passed `email`, raise a `ValueError` with the message User `<user's email>` already exists.
+If a user already exist with the passed `email`, raise a `ValueError` with the message `User <user's email> already exists`.
 
 If not, hash the password with `_hash_password`, save the user to the database using `self._db` and return the `User` object.
 
@@ -275,3 +275,5 @@ successfully created a new user!
 could not create a new user: User me@me.com already exists
 bob@dylan:~$
 ```
+
+File: [auth.py](./auth.py)
