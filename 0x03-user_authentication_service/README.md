@@ -157,3 +157,121 @@ bob@dylan:~$
 
 File: [db.py](./db.py)
 
+### update user
+
+In this task, you will implement the `DB.update_user` method that takes as argument a required `user_id` integer and arbitrary keyword arguments, and returns None.
+
+The method will use `find_user_by` to locate the user to update, then will update the user’s attributes as passed in the method’s arguments then commit changes to the database.
+
+If an argument that does not correspond to a user attribute is passed, raise a `ValueError`.
+
+```
+bob@dylan:~$ cat main.py
+#!/usr/bin/env python3
+"""
+Main file
+"""
+from db import DB
+from user import User
+
+from sqlalchemy.exc import InvalidRequestError
+from sqlalchemy.orm.exc import NoResultFound
+
+
+my_db = DB()
+
+email = 'test@test.com'
+hashed_password = "hashedPwd"
+
+user = my_db.add_user(email, hashed_password)
+print(user.id)
+
+try:
+    my_db.update_user(user.id, hashed_password='NewPwd')
+    print("Password updated")
+except ValueError:
+    print("Error")
+
+bob@dylan:~$ python3 main.py
+1
+Password updated
+bob@dylan:~$ 
+```
+
+### Hash password
+
+In this task you will define a `_hash_password` method that takes in a password string arguments and returns bytes.
+
+The returned bytes is a salted hash of the input password, hashed with `bcrypt.hashpw`.
+
+```
+bob@dylan:~$ cat main.py
+#!/usr/bin/env python3
+"""
+Main file
+"""
+from auth import _hash_password
+
+print(_hash_password("Hello ALX"))
+
+bob@dylan:~$ python3 main.py
+b'$2b$12$eUDdeuBtrD41c8dXvzh95ehsWYCCAi4VH1JbESzgbgZT.eMMzi.G2'
+bob@dylan:~$
+```
+
+auth.py
+
+### Register User
+
+In this task, you will implement the Auth.register_user in the Auth class provided below:
+
+```
+from db import DB
+
+
+class Auth:
+    """Auth class to interact with the authentication database.
+    """
+
+    def __init__(self):
+        self._db = DB()
+```
+
+Note that `Auth._db` is a private property and should NEVER be used from outside the class.
+
+`Auth.register_user` should take mandatory email and password string arguments and return a `User` object.
+
+If a user already exist with the passed `email`, raise a `ValueError` with the message User `<user's email>` already exists.
+
+If not, hash the password with `_hash_password`, save the user to the database using `self._db` and return the `User` object.
+
+```
+bob@dylan:~$ cat main.py
+#!/usr/bin/env python3
+"""
+Main file
+"""
+from auth import Auth
+
+email = 'me@me.com'
+password = 'mySecuredPwd'
+
+auth = Auth()
+
+try:
+    user = auth.register_user(email, password)
+    print("successfully created a new user!")
+except ValueError as err:
+    print("could not create a new user: {}".format(err))
+
+try:
+    user = auth.register_user(email, password)
+    print("successfully created a new user!")
+except ValueError as err:
+    print("could not create a new user: {}".format(err))        
+
+bob@dylan:~$ python3 main.py
+successfully created a new user!
+could not create a new user: User me@me.com already exists
+bob@dylan:~$
+```

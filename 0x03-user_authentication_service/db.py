@@ -3,7 +3,7 @@
 """
 from sqlalchemy import create_engine, tuple_
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, attributes
 from sqlalchemy.orm.session import Session
 from sqlalchemy.exc import InvalidRequestError , NoResultFound
 # from sqlalchemy.orm.exc import NoResultFound
@@ -58,3 +58,17 @@ class DB:
         except InvalidRequestError:
             raise InvalidRequestError()
         return user
+
+    def update_user(self, user_id: int, **kwargs: Dict) -> None:
+        """ Updates a user object
+        """
+        session = self._session
+        dictionary = {"id": user_id}
+        user = self.find_user_by(**dictionary)
+        if user:
+            for key, value in kwargs.items():
+                attributes.set_attribute(user, key, value)
+
+            session.commit()
+        else:
+            return None
