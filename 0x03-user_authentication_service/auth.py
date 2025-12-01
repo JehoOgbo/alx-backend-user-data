@@ -106,3 +106,17 @@ class Auth:
             except Exception as e:
                 return None
         return None
+
+    def get_reset_password_token(self, email: str) -> str:
+        """ set a password reset token for the given user
+        """
+        if email:
+            try:
+                email_dict = {'id': email}
+                user = self._db.find_user_by(**email_dict)
+                token = _generate_uuid()
+                update_dict = {'reset_token': token}
+                self._db.update_user(user.id, **update_dict)
+                return token
+            except Exception as e:
+                raise ValueError

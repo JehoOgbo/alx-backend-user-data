@@ -73,7 +73,18 @@ def log_out() -> str:
         AUTH.destroy_session(user.id)
         return redirect("/")
 
-
+@app.route('/profile', methods=['GET'], strict_slashes=False)
+def profile() -> str:
+    """ Endpoint to get user profile
+    
+        Usage:
+            GET /profile with a session_id cookie"
+    """
+    sesh_id = request.cookies.get('session_id')
+    user = AUTH.get_user_from_session_id(sesh_id)
+    if user is None:
+        abort(403)
+    return jsonify({"email": user.email})
 
 
 if __name__ == "__main__":
