@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """ Flask app
 """
-from flask import jsonify, Flask, request
+from flask import jsonify, Flask, request, abort
 from auth import Auth
 
 
@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 
 @app.route("/", methods=['GET'], strict_slashes=False)
-def hello_world():
+def hello_world() -> str:
     """ Entry endpoint into app
         Usage:
             GET /
@@ -19,14 +19,14 @@ def hello_world():
     return jsonify({'message': 'Bienvenue'})
 
 @app.route('/users', methods=['POST'], strict_slashes=False)
-def create_users():
+def create_users() -> str:
     """ Endpoint to create User objects
 
       - Expects email and password
       - Usage:
-            POST /users -d {"email": "haha@gpa.com", "password": "***"}
+            POST /users -d 'email=bob@bob.com' -d 'password=mySuperPwd'
     """
-    if request:
+    if request.method == 'POST':
         email = request.form.get("email")
         password = request.form.get("password")
         try:
@@ -36,6 +36,23 @@ def create_users():
             return jsonify({"message": "email already registered"}), 400
     return jsonify({"error": "missing fields"}), 400
 
+@app.route('/sessions', methods=['POST'], strict_slashes=False)
+def login() -> str:
+    """ Endpoint to login (create a new session)
+
+      - Expects email and password fields
+      - Usage:
+            POST /sessions -d 'email=bob@bob.com' -d 'password=mySuperPwd'
+    """
+    if request.method == 'POST':
+        email = request.form.get("email")
+        password = request.form.get("password")
+        if AUTH.valid_login(email, password):
+            sesh_id = AUTH.create_session(email)
+            response = jsonify({"email": email, "message": "logged in"})
+            response.set_cookie("session_id", sesh_id)
+            return response
+        abort(401)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port="5000")

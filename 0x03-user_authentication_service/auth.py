@@ -62,3 +62,33 @@ class Auth:
             except Exception as e:
                 return False
         return False
+
+    def create_session(self, email: str) -> str:
+        """ Find the user corresponding to the email,
+            generate a unique identifier and store that as the session id
+            Return the session id
+        """
+        if email:
+            email_dict = {'email': email}
+            try:
+                user = self._db.find_user_by(**email_dict)
+                if user:
+                    iden = _generate_uuid()
+                    update_dict = {"session_id": iden}
+                    self._db.update_user(user.id, **update_dict)
+                    return iden
+            except Exception as e:
+                return None
+        return None
+
+    def get_user_from_session_id(self, session_id: str) -> User:
+        """ Get the user attached to a session
+        """
+        if session_id:
+            try:
+                sesh_dict = {'session_id': session_id}
+                user = self._db.find_user_by(**sesh_dict)
+                return user
+            except Exception as e:
+                return None
+        return None
