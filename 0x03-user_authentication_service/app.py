@@ -78,13 +78,29 @@ def profile() -> str:
     """ Endpoint to get user profile
     
         Usage:
-            GET /profile with a session_id cookie"
+            GET /profile
+        with a session_id cookie"
     """
     sesh_id = request.cookies.get('session_id')
     user = AUTH.get_user_from_session_id(sesh_id)
     if user is None:
         abort(403)
     return jsonify({"email": user.email})
+
+@app.route('/reset_password', methods=['POST'], strict_slashes=False)
+def get_reset_password_token() -> str:
+    """ Endpoint to get the reset password token
+
+        Usage:
+            POST /reset_password
+        Request contains form data with the email field
+    """
+    email = request.form.get("email")
+    try:
+        token = AUTH.get_reset_password_token(email)
+        return jsonify({"email": email, "reset_token": token})
+    except ValueError:
+        abort(403)
 
 
 if __name__ == "__main__":
