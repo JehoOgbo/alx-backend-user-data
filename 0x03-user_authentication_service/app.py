@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """ Flask app
 """
-from flask import jsonify, Flask, request, abort
+from flask import jsonify, Flask, request, abort, redirect
 from auth import Auth
 
 
@@ -53,6 +53,28 @@ def login() -> str:
             response.set_cookie("session_id", sesh_id)
             return response
         abort(401)
+
+@app.route('/sessions', methods=['DELETE'], strict_slashes=False)
+def log_out() -> str:
+    """ Endpoint to logout (destroy a session)
+
+        Usage:
+            DELETE /sessions session_id=idijf833-idjo-fkjd-kdfjkjf
+      - Expects session_id as a set_cookie
+      - Find the user with requested session id.
+      - If exists, destroy and redirect to GET /
+        - else abort 403
+    """
+    if request.method == 'DELETE':
+        sesh_id = request.cookies.get('session_id')
+        user = AUTH.get_user_from_session_id(sesh_id)
+        if user is None:
+            abort(403)
+        AUTH.destroy_session(user.id)
+        return redirect("/")
+
+
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port="5000")
